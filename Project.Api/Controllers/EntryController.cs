@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Project.Api.Util;
 using Project.Application.Interfaces;
@@ -6,7 +7,7 @@ using Project.Application.ViewModels;
 
 namespace Project.Api.Controllers
 {
-    [Authorize]
+    //[Authorize]
     [ApiController]
     [Route("api/[controller]/[action]")]
     public class EntryController : Controller
@@ -27,9 +28,9 @@ namespace Project.Api.Controllers
         [HttpGet(Name = "Get")]
         public async Task<ActionResult> Get()
         {
-            var resultEmail = await _tokenService.GetEmailbyTokenClaims();
+            //var resultEmail = await _tokenService.GetEmailbyTokenClaims();
 
-            var response = await _entryService.GetAll(resultEmail.Value);
+            var response = await _entryService.GetAll("teste@gmail.com");
             if (response.IsFailure)
             {
                 return NotFound(new ApiResponse(response.Error.Code, response.Error.Message));
@@ -46,9 +47,9 @@ namespace Project.Api.Controllers
         [HttpGet(Name = "GetItem")]
         public async Task<ActionResult> GetItem(int id)
         {
-            var resultEmail = await _tokenService.GetEmailbyTokenClaims();
+            //var resultEmail = await _tokenService.GetEmailbyTokenClaims();
 
-            var response = await _entryService.GetItem(resultEmail.Value, id);
+            var response = await _entryService.GetItem("teste@gmail.com", id);
             if (response.IsFailure)
             {
                 return NotFound(new ApiResponse(response.Error.Code, response.Error.Message));
@@ -62,12 +63,13 @@ namespace Project.Api.Controllers
         /// </summary>
         /// <param name="entryRequest"></param>
         /// <returns></returns>
+       // [DisableCors]
         [HttpPost(Name = "Add")]
         public async Task<ActionResult> Add(EntryVM entryRequest)
         {
-            var resultEmail = await _tokenService.GetEmailbyTokenClaims();
+            //var resultEmail = await _tokenService.GetEmailbyTokenClaims();
 
-            var response = await _entryService.AddEntry(resultEmail.Value, entryRequest);
+            var response = await _entryService.AddEntry("teste@gmail.com", entryRequest);
             if (response.IsFailure)
             {
                 return NotFound(new ApiResponse(response.Error.Code, response.Error.Message));
@@ -84,9 +86,9 @@ namespace Project.Api.Controllers
         [HttpPut(Name = "Update")]
         public async Task<ActionResult> Update(EntryVM entryRequest)
         {
-            var resultEmail = await _tokenService.GetEmailbyTokenClaims();
+            //var resultEmail = await _tokenService.GetEmailbyTokenClaims();
 
-            var response = await _entryService.UpdateEntry(resultEmail.Value, entryRequest);
+            var response = await _entryService.UpdateEntry("teste@gmail.com", entryRequest);
             if (response.IsFailure)
             {
                 return NotFound(new ApiResponse(response.Error.Code, response.Error.Message));
@@ -103,9 +105,9 @@ namespace Project.Api.Controllers
         [HttpDelete(Name = "Delete")]
         public async Task<ActionResult> Delete(int id)
         {
-            var resultEmail = await _tokenService.GetEmailbyTokenClaims();
+            //var resultEmail = await _tokenService.GetEmailbyTokenClaims();
 
-            var response = await _entryService.DeleteEntry(resultEmail.Value, id);
+            var response = await _entryService.DeleteEntry("teste@gmail.com", id);
             if (response.IsFailure)
             {
                 return NotFound(new ApiResponse(response.Error.Code, response.Error.Message));

@@ -12,6 +12,7 @@ using Project.Infra.Ioc;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
+var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
 // Add services to the container.
 builder.Services.AddDbContext<AppDbContext>(opt =>
@@ -36,25 +37,25 @@ DependencyContainer.RegisterServices(builder.Services);
 AutoMapperDependencyInjection.AddApplication(builder.Services);
 
 //JWT
-builder.Services.AddAuthentication(opt =>
-{
-    opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-}).AddJwtBearer(options =>
-{
-    options.RequireHttpsMetadata = false;
-    options.SaveToken = true;
-    options.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-        ValidIssuer = builder.Configuration["Jwt:Issuer"],
-        ValidAudience = builder.Configuration["Jwt:Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
-    };
-});
+//builder.Services.AddAuthentication(opt =>
+//{
+//    opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+//    opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+//}).AddJwtBearer(options =>
+//{
+//    options.RequireHttpsMetadata = false;
+//    options.SaveToken = true;
+//    options.TokenValidationParameters = new TokenValidationParameters
+//    {
+//        ValidateIssuer = true,
+//        ValidateAudience = true,
+//        ValidateLifetime = true,
+//        ValidateIssuerSigningKey = true,
+//        ValidIssuer = builder.Configuration["Jwt:Issuer"],
+//        ValidAudience = builder.Configuration["Jwt:Audience"],
+//        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+//    };
+//});
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -70,33 +71,65 @@ builder.Services.AddSwaggerGen(options =>
     });
     options.IncludeXmlComments(Path.Combine(System.AppContext.BaseDirectory, "DemoSwaggerAnnotation.xml"));
 
-    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-    {
-        Scheme = "Bearer",
-        BearerFormat = "JWT",
-        Name = "Authorization",
-        In = ParameterLocation.Header,
-        Type = SecuritySchemeType.Http,
-        Description = "Acesso protegido utilize o Token obtido em \"api/Autenticate/Autenticate\", informe apenas o Token, sem o Bearer, para autenticar nesta api."
-    });
-    options.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
-        {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference
-                {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "Bearer"
-                }
-            },
-            Array.Empty<string>()
-        }
-    });
+    //options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    //{
+    //    Scheme = "Bearer",
+    //    BearerFormat = "JWT",
+    //    Name = "Authorization",
+    //    In = ParameterLocation.Header,
+    //    Type = SecuritySchemeType.Http,
+    //    Description = "Acesso protegido utilize o Token obtido em \"api/Autenticate/Autenticate\", informe apenas o Token, sem o Bearer, para autenticar nesta api."
+    //});
+    //options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    //{
+    //    {
+    //        new OpenApiSecurityScheme
+    //        {
+    //            Reference = new OpenApiReference
+    //            {
+    //                Type = ReferenceType.SecurityScheme,
+    //                Id = "Bearer"
+    //            }
+    //        },
+    //        Array.Empty<string>()
+    //    }
+    //});
 
 });
 
+//builder.Services.AddCors(options =>
+//{
+//    options.AddPolicy(name: MyAllowSpecificOrigins,
+//                      policy =>
+//                      {
+//                          policy.WithOrigins("http://localhost:3000/").AllowAnyHeader().AllowAnyMethod();
+//                      });
+//});
+
+
+//builder.Services.AddCors(setup => {
+//    setup.AddPolicy("CorsPolicy", builder => {
+//        builder.AllowAnyHeader();
+//        builder.AllowAnyMethod();
+//        builder.AllowAnyOrigin();
+//        builder.WithOrigins("http://localhost:3000").AllowAnyHeader().AllowAnyMethod();
+//    });
+//});
+
+// Replace the problematic line with the following code:
+//builder.Services.Configure<MvcOptions>(options =>
+//{
+//    options.Filters.Add(CorsAuthorizationFilterFactory("CorsPolicy"));
+//});
+
 var app = builder.Build();
+
+//app.UseCors(setup => {
+//    setup.WithOrigins("http://localhost:3000").AllowAnyHeader().AllowAnyMethod();
+//    });
+
+
+
 
 // Configure the HTTP request pipeline.
 //if (app.Environment.IsDevelopment())
@@ -113,9 +146,20 @@ app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "api Teste v
     //dbContext.Database.EnsureCreated();
 }
 
+
 app.UseHttpsRedirection();
 
+app.UseCors(x => x
+               .AllowAnyMethod()
+               .AllowAnyHeader()
+               .SetIsOriginAllowed(origin => true) // allow any origin
+               ); // allow credentials
+
 app.UseRouting();
+//app.UseCors("CorsPolicy");
+
+//app.UseCors(MyAllowSpecificOrigins);
+//app.UseCors(option => option.WithOrigins("http://localhost:3000/").AllowAnyOrigin().AllowAnyMethod());
 
 app.UseAuthentication();
 

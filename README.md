@@ -1,6 +1,6 @@
 Siga as instruções abaixo para executar a solução:
 
-Passos para rodar o projeto
+<h1>Passos para rodar o projeto</h1>
 
 1 – Execute o script de banco (arquivo 1_SQL_Script_DB.sql) que esta na raíz desse repositório;
 
